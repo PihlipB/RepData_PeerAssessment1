@@ -1,0 +1,170 @@
+Reproducable research project
+========================================================
+
+mean steps taken each day=9354.23
+median steps each day=10395
+max steps in interval=206.19,interval=835
+
+
+First histagram for total steps each day
+
+```{r,echo=TRUE}
+
+Data<-read.csv("~/DataScience/activity.csv")
+count<-0
+histdf<-data.frame(steps=numeric(0),date=character(0))
+for (i in 1:31)
+{
+  count<-count+1
+  if(count<=9) {day<-paste("0",count,sep="")}
+  else day=count
+    date1<-paste("2012-10-",day,sep="")
+ dailysteps<-subset(Data,date==date1,select=c("date","steps"))
+ transform(dailysteps,steps=as.numeric(steps))
+ stepsperday<-sum(dailysteps$steps,na.rm=TRUE)
+ info<-data.frame(steps=stepsperday, date=date1)
+ histdf<-rbind(histdf,info)               
+}
+count<-0
+for (i in 1:30)
+{
+  count<-count+1
+  if(count<=9) {day<-paste("0",count,sep="")}
+  else day=count
+  date1<-paste("2012-11-",day,sep="")
+  dailysteps<-subset(Data,date==date1,select=c("date","steps"))
+  transform(dailysteps,steps=as.numeric(steps))
+  stepsperday<-sum(dailysteps$steps,na.rm=TRUE)
+  info<-data.frame(steps=stepsperday, date=date1)
+  histdf<-rbind(histdf,info)               
+}
+hist(histdf$steps,breaks=61,main="total steps per day",xlab="steps per day",ylab="frequency of days")
+
+mean<-mean(histdf$steps)
+median<-median(histdf$steps)
+print(mean)
+print(median)
+
+```
+
+Average Daily activity pattern
+
+```{r,echo=TRUE}
+
+Data<-read.csv("~/DataScience/activity.csv")
+count<-0
+histdf<-data.frame(steps=numeric(0),interval=numeric(0))
+for (i in 1:471)
+{
+  count<-count+5
+  intsteps<-subset(Data,interval==count,select=c("interval","steps"))
+  stepsperday<-mean(intsteps$steps,na.rm=TRUE)
+  info<-data.frame(steps=stepsperday,interval=count)
+  histdf<-rbind(histdf,info)               
+}
+#print(histdf)
+plot(histdf$steps,type="l",ylab="average steps",xlab="interval",main="average steps per interval")
+
+max<-max(histdf$steps,na.rm=TRUE)
+print(max)
+
+```
+
+Total steps per day with modified data
+
+```{r}
+
+Data<-read.csv("~/DataScience/activity.csv")
+navals<-apply(Data,2,function(x) length(which(is.na(x))))
+
+Data[is.na(Data)]<-5
+
+count<-0
+histdf<-data.frame(steps=numeric(0),date=character(0))
+for (i in 1:31)
+{
+  count<-count+1
+  if(count<=9) {day<-paste("0",count,sep="")}
+  else day=count
+  date1<-paste("2012-10-",day,sep="")
+  dailysteps<-subset(Data,date==date1,select=c("date","steps"))
+  transform(dailysteps,steps=as.numeric(steps))
+  stepsperday<-sum(dailysteps$steps,na.rm=TRUE)
+  info<-data.frame(steps=stepsperday, date=date1)
+  histdf<-rbind(histdf,info)               
+}
+count<-0
+for (i in 1:30)
+{
+  count<-count+1
+  if(count<=9) {day<-paste("0",count,sep="")}
+  else day=count
+  date1<-paste("2012-11-",day,sep="")
+  dailysteps<-subset(Data,date==date1,select=c("date","steps"))
+  transform(dailysteps,steps=as.numeric(steps))
+  stepsperday<-sum(dailysteps$steps,na.rm=TRUE)
+  info<-data.frame(steps=stepsperday, date=date1)
+  histdf<-rbind(histdf,info)               
+}
+hist(histdf$steps,breaks=61,main="Total daily Steps",xlab="steps per day", ylab="frequency of days")
+
+mean<-mean(histdf$steps)
+median<-median(histdf$steps)
+print(mean)
+print(median)
+print(navals)
+
+```
+
+weekend/weekday time series plot
+
+```{r}
+
+Data<-read.csv("~/DataScience/activity.csv")
+Data[is.na(Data)]<-5
+Data$day<-weekdays(as.Date(Data$date))
+
+weekends<-subset(Data, day=="Sunday"|day=="Saturday")
+weekdays<-subset(Data, day!="Sunday"|day!="Saturday")
+
+
+#weekends graph
+count<-0
+weekendhist<-data.frame(steps=numeric(0),interval=numeric(0))
+for (i in 1:471)
+{
+  count<-count+5
+  intsteps<-subset(weekends,interval==count,select=c("interval","steps"))
+  stepsperday<-mean(intsteps$steps,na.rm=TRUE)
+  info<-data.frame(steps=stepsperday,interval=count)
+  weekendhist<-rbind(weekendhist,info)               
+}
+
+
+#weekdays graph
+count<-0
+weekhist<-data.frame(steps=numeric(0),interval=numeric(0))
+for (i in 1:471)
+{
+  count<-count+5
+  intsteps<-subset(weekdays,interval==count,select=c("interval","steps"))
+  stepsperday<-mean(intsteps$steps,na.rm=TRUE)
+  info<-data.frame(steps=stepsperday,interval=count)
+  weekhist<-rbind(weekhist,info)               
+}
+
+par(mfrow=c(2,1))
+layout(matrix(c(1,1,2,2),2,2, byrow=TRUE),widths=c(1,1),heights=c(1,1))
+plot(weekendhist$steps,type="l",ylab="average steps",xlab="interval",main="weekends",col="blue")
+plot(weekhist$steps,type="l",ylab="average steps",xlab="interval",main=" weekdays",col="blue")
+
+
+```
+
+
+
+
+
+
+
+
